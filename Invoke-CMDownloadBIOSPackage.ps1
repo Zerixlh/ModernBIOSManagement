@@ -123,7 +123,7 @@ param (
 	[ValidateNotNullOrEmpty()]
 	[string]$SystemSKU
 )
-Begin {
+<# Begin {
 	
 	# Load Microsoft.SMS.TSEnvironment COM object
 	if ($PSCmdLet.ParameterSetName -notlike "Debug") {
@@ -136,7 +136,9 @@ Begin {
 
 	# Set Security Protocol (TLS) 
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-}
+} #>
+
+
 Process {
 	# Set Log Path
 	switch ($PSCmdLet.ParameterSetName) {
@@ -587,7 +589,7 @@ Process {
 		try {
 			Write-CMLogEntry -Value " - Attempting to locate PSIntuneAuth module" -Severity 1
 			$PSIntuneAuthModule = Get-InstalledModule -Name "PSIntuneAuth" -ErrorAction Stop -Verbose:$false
-			if ($PSIntuneAuthModule -ne $null) {
+			if ($null -ne $PSIntuneAuthModule) {
 				Write-CMLogEntry -Value " - Authentication module detected, checking for latest version" -Severity 1
 				$LatestModuleVersion = (Find-Module -Name "PSIntuneAuth" -ErrorAction SilentlyContinue -Verbose:$false).Version
 				if ($LatestModuleVersion -gt $PSIntuneAuthModule.Version) {
@@ -706,7 +708,7 @@ Process {
 		}
 		
 		# Add returned driver package objects to array list
-		if ($AdminServiceResponse.value -ne $null) {
+		if ($null -ne $AdminServiceResponse.value) {
 			foreach ($Package in $AdminServiceResponse.value) {
 				$PackageArray.Add($Package) | Out-Null
 			}
@@ -750,7 +752,7 @@ Process {
 			}
 			
 			# Handle return value
-			if ($Packages -ne $null) {
+			if ($null -ne $Packages) {
 				Write-CMLogEntry -Value " - Retrieved a total of '$(($Packages | Measure-Object).Count)' BIOS packages from $($Script:PackageSource) matching operational mode: $($OperationalMode)" -Severity 1
 				return $Packages
 			} else {
@@ -892,12 +894,12 @@ Process {
 			"SystemSKUDetected" = $false
 		}
 		
-		if (($InputObject.Model -ne $null) -and (-not ([System.String]::IsNullOrEmpty($InputObject.Model)))) {
+		if (($null -ne $InputObject.Model) -and (-not ([System.String]::IsNullOrEmpty($InputObject.Model)))) {
 			Write-CMLogEntry -Value " - Computer model detection was successful" -Severity 1
 			$ComputerDetection.ModelDetected = $true
 		}
 		
-		if (($InputObject.SystemSKU -ne $null) -and (-not ([System.String]::IsNullOrEmpty($InputObject.SystemSKU)))) {
+		if (($null -ne $InputObject.SystemSKU) -and (-not ([System.String]::IsNullOrEmpty($InputObject.SystemSKU)))) {
 			Write-CMLogEntry -Value " - Computer SystemSKU detection was successful" -Severity 1
 			$ComputerDetection.SystemSKUDetected = $true
 		}
@@ -1058,8 +1060,8 @@ Process {
 		
 		if ($ComputerSystemType -notin @("Virtual Machine", "VMware Virtual Platform", "VirtualBox", "HVM domU", "KVM")) {
 			# Process packages returned from web service
-			if ($BIOSPackages -ne $null) {
-				if (($ComputerModel -ne $null) -and (-not ([System.String]::IsNullOrEmpty($ComputerModel))) -or (($SystemSKU -ne $null) -and (-not ([System.String]::IsNullOrEmpty($SystemSKU))))) {
+			if ($null -ne $BIOSPackages) {
+				if (($null -ne $ComputerModel) -and (-not ([System.String]::IsNullOrEmpty($ComputerModel))) -or (($null -ne $SystemSKU) -and (-not ([System.String]::IsNullOrEmpty($SystemSKU))))) {
 					# Determine computer model detection
 					if ([System.String]::IsNullOrEmpty($SystemSKU)) {
 						Write-CMLogEntry -Value "Attempting to find a match for BIOS package: $($Package.PackageName) ($($Package.PackageID))" -Severity 1
@@ -1174,7 +1176,7 @@ Process {
 									($_.Name -like "*$ComputerDescription") -and ($_.Manufacturer -match $ComputerManufacturer)
 								} | Sort-object -Property SourceDate -Descending | Select-Object -First 1
 								
-								If ($PackageList -eq $null) {
+								If ($null -eq $PackageList) {
 									# Fall back to select the latest model type match if no model name match is found
 									$PackageList = $PackageList | Sort-object -Property SourceDate -Descending | Select-Object -First 1
 								}
